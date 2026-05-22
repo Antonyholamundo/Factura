@@ -273,12 +273,14 @@ layer(base);
   }
 
   &::-webkit-scrollbar-thumb {
-    @apply bg-gray-200 rounded-full dark:bg-gray-700;
+    @apply bg-gray-200 rounded-full;
+  }
+
+  .dark &::-webkit-scrollbar-thumb {
+    background-color: var(--color-gray-700);
   }
 }
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #344054;
-}
+
 
 @layer utilities {
   /* For Remove Date Icon */
@@ -780,11 +782,11 @@ span.flatpickr-weekday,
 }
 
 .simplebar-scrollbar::before {
-  @apply !bg-gray-200 !rounded-full dark:!bg-gray-700 !opacity-100;
+  @apply !bg-gray-200 !rounded-full !opacity-100;
 }
 
 .dark .simplebar-scrollbar::before {
-  @apply !bg-gray-700;
+  background-color: var(--color-gray-700);
 }
 
 .simplebar-scrollbar.simplebar-visible:before {

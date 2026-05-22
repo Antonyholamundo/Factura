@@ -1,4 +1,4 @@
-﻿/**
+/**
  * COMPONENTE: DefaultInputs
  * FUNCIÓN TRIBUTARIA: Formulario de registro de productos/servicios en el catálogo POS,
  * alineado a los campos oficiales del SRI Ecuador:
@@ -116,7 +116,7 @@ export default function DefaultInputs() {
     const totalConIva = parsedPrice + ivaAmount;
 
     setSuccessMessage(
-      `✅ Producto "${productName.trim()}" registrado — Código: ${autoCode} | Base: $${parsedPrice.toFixed(2)} + IVA ${ivaRate * 100}%: $${ivaAmount.toFixed(2)} = PVP: $${totalConIva.toFixed(2)}`
+      `Producto "${productName.trim()}" registrado — Código: ${autoCode} | Base: $${parsedPrice.toFixed(2)} + IVA ${ivaRate * 100}%: $${ivaAmount.toFixed(2)} = PVP: $${totalConIva.toFixed(2)}`
     );
 
     // Clear fields
@@ -236,8 +236,12 @@ export default function DefaultInputs() {
         )}
 
         {successMessage && (
-          <div className="p-3 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-800/20 dark:text-green-400">
-            {successMessage}
+          <div className="p-3 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-800/20 dark:text-green-400 flex items-center gap-2.5 animate-fade-in border border-green-200 dark:border-green-800/40">
+            {/* SVG Icono Check Éxito */}
+            <svg className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{successMessage}</span>
           </div>
         )}
 
