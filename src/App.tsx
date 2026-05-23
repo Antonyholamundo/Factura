@@ -1,8 +1,9 @@
-﻿import { BrowserRouter as Router, Routes, Route } from "react-router";
+import { BrowserRouter as Router, Routes, Route } from "react-router";
 import SignIn from "./paginas/PaginasAuth/InicioSesion";
 import SignUp from "./paginas/PaginasAuth/Registro";
 import NotFound from "./paginas/OtraPagina/NoEncontrado";
 import UserProfiles from "./paginas/PerfilesUsuario";
+import DirectorioClientes from "./paginas/DirectorioClientes";
 import Videos from "./paginas/ElementosUI/Videos";
 import Images from "./paginas/ElementosUI/Imagenes";
 import Alerts from "./paginas/ElementosUI/Alertas";
@@ -29,6 +30,7 @@ export default function App() {
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
+            <Route path="/clientes" element={<DirectorioClientes />} />
 
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />

@@ -21,7 +21,11 @@ function generateCodigoPrincipal(): string {
   return `PROD-${timestamp}-${random}`.substring(0, 25);
 }
 
-export default function DefaultInputs() {
+interface DefaultInputsProps {
+  onRegister?: () => void;
+}
+
+export default function DefaultInputs({ onRegister }: DefaultInputsProps) {
   // React State for SRI product registration
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
@@ -109,6 +113,7 @@ export default function DefaultInputs() {
 
     const updatedList = [...currentList, newProduct];
     localStorage.setItem("pos_products", JSON.stringify(updatedList));
+    onRegister?.();
 
     // Compute preview values for confirmation
     const ivaRate = getIvaRate(codigoPorcentaje);

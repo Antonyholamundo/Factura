@@ -1,4 +1,4 @@
-﻿/**
+/**
  * COMPONENTE: AppSidebar
  * FUNCIÓN TRIBUTARIA: Panel lateral de navegación principal. Permite al contribuyente/emisor
  * acceder a los diferentes módulos del sistema: resumen de gestión, facturación electrónica,
@@ -18,7 +18,6 @@ import {
   ChevronDownIcon,
   GridIcon,
   HorizontaLDots,
-  ListIcon,
   TableIcon,
   UserCircleIcon,
 } from "../iconos";
@@ -56,13 +55,6 @@ const operaciones: NavItem[] = [
       { name: "Terminal de Venta (Caja)", path: "/basic-tables", pro: false },
     ],
   },
-  {
-    icon: <ListIcon />,
-    name: "Comprobantes SRI",
-    subItems: [
-      { name: "Autorizados / Pendientes", path: "/basic-tables", pro: false },
-    ],
-  },
 ];
 
 // ─────────────────────────────────────────────
@@ -73,14 +65,14 @@ const catalogos: NavItem[] = [
     icon: <BoxCubeIcon />,
     name: "Inventario y Productos",
     subItems: [
-      { name: "Registrar Producto", path: "/form-elements", pro: false },
+      { name: "Catálogo / Inventario", path: "/form-elements", pro: false },
     ],
   },
   {
     icon: <UserCircleIcon />,
     name: "Directorio de Clientes",
     subItems: [
-      { name: "Lista de Clientes", path: "/profile", pro: false },
+      { name: "Lista de Clientes", path: "/clientes", pro: false },
     ],
   },
 ];
