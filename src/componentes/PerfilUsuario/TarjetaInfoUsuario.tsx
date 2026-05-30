@@ -1,184 +1,217 @@
-﻿import { useModal } from "../../ganchos/useModal";
+import { useState } from "react";
+import { useModal } from "../../ganchos/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/boton/Boton";
 import Input from "../formulario/entrada/CampoEntrada";
 import Label from "../formulario/Etiqueta";
+import Select from "../formulario/Seleccion";
+import { usarEmisor } from "../../ganchos/usar-emisor";
 
 export default function UserInfoCard() {
+  const { emisor, guardarEmisor } = usarEmisor();
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
+
+  // ── Estado local para el formulario de edición ──
+  const [razonSocial, setRazonSocial] = useState(emisor.razonSocial);
+  const [ruc, setRuc] = useState(emisor.ruc);
+  const [correo, setCorreo] = useState(emisor.correo);
+  const [telefono, setTelefono] = useState(emisor.telefono);
+  const [obligadoContabilidad, setObligadoContabilidad] = useState(emisor.obligadoContabilidad);
+  const [errores, setErrores] = useState<Record<string, string>>({});
+
+  // Abrir modal e inicializar estado local con valores actuales
+  const handleOpen = () => {
+    setRazonSocial(emisor.razonSocial);
+    setRuc(emisor.ruc);
+    setCorreo(emisor.correo);
+    setTelefono(emisor.telefono);
+    setObligadoContabilidad(emisor.obligadoContabilidad);
+    setErrores({});
+    openModal();
   };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrores({});
+
+    const resultado = guardarEmisor({
+      razonSocial: razonSocial.trim(),
+      ruc: ruc.trim(),
+      correo: correo.trim(),
+      telefono: telefono.trim(),
+      obligadoContabilidad,
+    });
+
+    if (resultado.exito) {
+      closeModal();
+    } else {
+      setErrores(resultado.errores);
+    }
+  };
+
   return (
-    <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-            Información Personal
-          </h4>
+    <>
+      <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h4 className="text-lg font-bold text-gray-800 dark:text-white lg:mb-6">
+              Información Fiscal del Emisor
+            </h4>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Nombres
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Musharof
-              </p>
-            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
+              <div>
+                <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  Razón Social / Propietario
+                </p>
+                <p className="text-sm font-bold text-gray-800 dark:text-white/90">
+                  {emisor.razonSocial}
+                </p>
+              </div>
 
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Apellidos
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Chowdhury
-              </p>
-            </div>
+              <div>
+                <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  RUC del Emisor
+                </p>
+                <p className="text-sm font-mono font-bold text-gray-800 dark:text-white/90">
+                  {emisor.ruc}
+                </p>
+              </div>
 
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Correo Electrónico
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                randomuser@pimjo.com
-              </p>
-            </div>
+              <div>
+                <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  Correo Electrónico (Notificaciones)
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {emisor.correo}
+                </p>
+              </div>
 
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Teléfono
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                +09 363 398 46
-              </p>
-            </div>
+              <div>
+                <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  Teléfono de Contacto
+                </p>
+                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {emisor.telefono}
+                </p>
+              </div>
 
-            <div>
-              <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Cargo / Actividad Económica
-              </p>
-              <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                Representante Legal
-              </p>
+              <div>
+                <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  Obligado a llevar Contabilidad
+                </p>
+                <span className={`inline-block mt-0.5 px-2.5 py-0.5 rounded-md text-xs font-bold ${
+                  emisor.obligadoContabilidad === "SI"
+                    ? "bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400"
+                    : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                }`}>
+                  {emisor.obligadoContabilidad}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <button
-          onClick={openModal}
-          className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
-        >
-          <svg
-            className="fill-current"
-            width="18"
-            height="18"
-            viewBox="0 0 18 18"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+          <button
+            onClick={handleOpen}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
           >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z"
-              fill=""
-            />
-          </svg>
-          Editar
-        </button>
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+            </svg>
+            Editar
+          </button>
+        </div>
       </div>
 
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-        <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
-          <div className="px-2 pr-14">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Editar Información Personal
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[650px] m-4">
+        <div className="no-scrollbar relative w-full max-w-[650px] overflow-y-auto rounded-3xl bg-white p-6 dark:bg-gray-900 lg:p-10">
+          <div className="pr-10 border-b dark:border-gray-800 pb-3 mb-5">
+            <h4 className="text-xl font-bold text-gray-800 dark:text-white">
+              Editar Datos Fiscales del Emisor
             </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Actualice sus detalles para mantener sus datos al día.
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Estos campos se registrarán en la firma digital y en los XMLs de comprobantes electrónicos autorizados por el SRI.
             </p>
           </div>
-          <form className="flex flex-col">
-            <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
+          
+          <form onSubmit={handleSave} className="flex flex-col gap-4">
+            <div>
+              <Label>Nombre o Razón Social Legal *</Label>
+              <Input
+                type="text"
+                value={razonSocial}
+                onChange={(e: any) => setRazonSocial(e.target.value)}
+                placeholder="Ej: DISTRIBUIDORA COMERCIAL ALFA S.A."
+                className="w-full"
+              />
+              {errores.razonSocial && (
+                <p className="text-xs text-red-500 font-semibold mt-1">{errores.razonSocial}</p>
+              )}
+            </div>
+
+            <div>
+              <Label>Número de RUC (13 dígitos) *</Label>
+              <Input
+                type="text"
+                value={ruc}
+                onChange={(e: any) => setRuc(e.target.value)}
+                placeholder="Ej: 1791234567001"
+                className="w-full font-mono"
+              />
+              {errores.ruc && (
+                <p className="text-xs text-red-500 font-semibold mt-1">{errores.ruc}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Redes Sociales / Enlaces
-                </h5>
-
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div>
-                    <Label>Facebook</Label>
-                    <Input
-                      type="text"
-                      value="https://www.facebook.com/PimjoHQ"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>X.com</Label>
-                    <Input type="text" value="https://x.com/PimjoHQ" />
-                  </div>
-
-                  <div>
-                    <Label>Linkedin</Label>
-                    <Input
-                      type="text"
-                      value="https://www.linkedin.com/company/pimjo"
-                    />
-                  </div>
-
-                  <div>
-                    <Label>Instagram</Label>
-                    <Input type="text" value="https://instagram.com/PimjoHQ" />
-                  </div>
-                </div>
+                <Label>Correo de Notificaciones *</Label>
+                <Input
+                  type="email"
+                  value={correo}
+                  onChange={(e: any) => setCorreo(e.target.value)}
+                  placeholder="Ej: contabilidad@alfa.com"
+                  className="w-full"
+                />
+                {errores.correo && (
+                  <p className="text-xs text-red-500 font-semibold mt-1">{errores.correo}</p>
+                )}
               </div>
-              <div className="mt-7">
-                <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Información Personal
-                </h5>
 
-                <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Nombres</Label>
-                    <Input type="text" value="Musharof" />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Apellidos</Label>
-                    <Input type="text" value="Chowdhury" />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Correo Electrónico</Label>
-                    <Input type="text" value="randomuser@pimjo.com" />
-                  </div>
-
-                  <div className="col-span-2 lg:col-span-1">
-                    <Label>Teléfono</Label>
-                    <Input type="text" value="+09 363 398 46" />
-                  </div>
-
-                  <div className="col-span-2">
-                    <Label>Cargo / Actividad Económica</Label>
-                    <Input type="text" value="Representante Legal" />
-                  </div>
-                </div>
+              <div>
+                <Label>Teléfono de Contacto</Label>
+                <Input
+                  type="text"
+                  value={telefono}
+                  onChange={(e: any) => setTelefono(e.target.value)}
+                  placeholder="Ej: +593 2 3456789"
+                  className="w-full"
+                />
               </div>
             </div>
-            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Cerrar
+
+            <div>
+              <Label>¿Obligado a llevar Contabilidad? *</Label>
+              <Select
+                options={[
+                  { value: "NO", label: "NO" },
+                  { value: "SI", label: "SÍ" },
+                ]}
+                onChange={(v) => setObligadoContabilidad(v as "SI" | "NO")}
+                defaultValue={obligadoContabilidad}
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 border-t dark:border-gray-800 pt-5 mt-4">
+              <Button size="sm" variant="outline" type="button" onClick={closeModal} className="rounded-xl">
+                Cancelar
               </Button>
-              <Button size="sm" onClick={handleSave}>
+              <Button size="sm" type="submit" className="rounded-xl bg-brand-500 text-white hover:bg-brand-600">
                 Guardar Cambios
               </Button>
             </div>
           </form>
         </div>
       </Modal>
-    </div>
+    </>
   );
 }

@@ -1,126 +1,263 @@
-﻿import { useModal } from "../../ganchos/useModal";
+import { useState } from "react";
+import { useModal } from "../../ganchos/useModal";
 import { Modal } from "../ui/modal";
 import Button from "../ui/boton/Boton";
 import Input from "../formulario/entrada/CampoEntrada";
 import Label from "../formulario/Etiqueta";
+import { usarEmisor } from "../../ganchos/usar-emisor";
 
 export default function UserAddressCard() {
+  const { emisor, guardarEmisor } = usarEmisor();
   const { isOpen, openModal, closeModal } = useModal();
-  const handleSave = () => {
-    // Handle save logic here
-    console.log("Saving changes...");
-    closeModal();
+
+  // ── Estado local para el formulario de edición ──
+  const [dirMatriz, setDirMatriz] = useState(emisor.dirMatriz);
+  const [dirEstablecimiento, setDirEstablecimiento] = useState(emisor.dirEstablecimiento);
+  const [estab, setEstab] = useState(emisor.estab);
+  const [ptoEmi, setPtoEmi] = useState(emisor.ptoEmi);
+  const [firmaNombre, setFirmaNombre] = useState(emisor.firmaNombre);
+  const [firmaPassword, setFirmaPassword] = useState(emisor.firmaPassword || "");
+  const [errores, setErrores] = useState<Record<string, string>>({});
+
+  // Abrir modal e inicializar estado local
+  const handleOpen = () => {
+    setDirMatriz(emisor.dirMatriz);
+    setDirEstablecimiento(emisor.dirEstablecimiento);
+    setEstab(emisor.estab);
+    setPtoEmi(emisor.ptoEmi);
+    setFirmaNombre(emisor.firmaNombre);
+    setFirmaPassword(emisor.firmaPassword || "");
+    setErrores({});
+    openModal();
   };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrores({});
+
+    const resultado = guardarEmisor({
+      dirMatriz: dirMatriz.trim(),
+      dirEstablecimiento: dirEstablecimiento.trim(),
+      estab: estab.trim(),
+      ptoEmi: ptoEmi.trim(),
+      firmaNombre: firmaNombre.trim() || "firma_pruebas_sri.p12",
+      firmaPassword: firmaPassword.trim(),
+    });
+
+    if (resultado.exito) {
+      closeModal();
+    } else {
+      setErrores(resultado.errores);
+    }
+  };
+
+  // Simulación de uploader de archivo .p12
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFirmaNombre(file.name);
+    }
+  };
+
   return (
     <>
       <div className="p-5 border border-gray-200 rounded-2xl dark:border-gray-800 lg:p-6">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-              Dirección Matriz
+            <h4 className="text-lg font-bold text-gray-800 dark:text-white lg:mb-6">
+              Infraestructura Fiscal y Firma Electrónica
             </h4>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
               <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  País
+                <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  Dirección Matriz
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  Ecuador
+                  {emisor.dirMatriz}
                 </p>
               </div>
 
               <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Ciudad / Provincia
+                <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  Dirección del Establecimiento
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  Quito, Pichincha, Ecuador.
+                  {emisor.dirEstablecimiento}
                 </p>
               </div>
 
-              <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Código Postal
-                </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  170150
-                </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                    Establecimiento
+                  </p>
+                  <p className="text-sm font-mono font-bold text-gray-800 dark:text-white/90">
+                    {emisor.estab}
+                  </p>
+                </div>
+                <div>
+                  <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                    Punto de Emisión
+                  </p>
+                  <p className="text-sm font-mono font-bold text-gray-800 dark:text-white/90">
+                    {emisor.ptoEmi}
+                  </p>
+                </div>
               </div>
 
               <div>
-                <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  RUC / Cédula
+                <p className="mb-1 text-xs font-semibold text-gray-400 dark:text-gray-500">
+                  Certificado de Firma Electrónica (.p12)
                 </p>
-                <p className="text-sm font-medium text-gray-800 dark:text-white/90">
-                  1791234567001
-                </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                  <span className="text-sm font-mono font-semibold text-gray-800 dark:text-white">
+                    {emisor.firmaNombre}
+                  </span>
+                  {emisor.firmaPassword && (
+                    <span className="text-xs text-gray-400">(Protegido con clave)</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
           <button
-            onClick={openModal}
-            className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
+            onClick={handleOpen}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-semibold text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200 lg:inline-flex lg:w-auto"
           >
-            <svg
-              className="fill-current"
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z"
-                fill=""
-              />
+            <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
             </svg>
             Editar
           </button>
         </div>
       </div>
-      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[700px] m-4">
-        <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
-          <div className="px-2 pr-14">
-            <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Editar Dirección
+
+      <Modal isOpen={isOpen} onClose={closeModal} className="max-w-[650px] m-4">
+        <div className="relative w-full p-6 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-10">
+          <div className="pr-10 border-b dark:border-gray-800 pb-3 mb-5">
+            <h4 className="text-xl font-bold text-gray-800 dark:text-white">
+              Editar Direcciones y Firma Digital
             </h4>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Actualice sus detalles para mantener sus datos al día.
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Configure la ubicación de sucursales, códigos de caja e infraestructura criptográfica.
             </p>
           </div>
-          <form className="flex flex-col">
-            <div className="px-2 overflow-y-auto custom-scrollbar">
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
+
+          <form onSubmit={handleSave} className="flex flex-col gap-4">
+            <div>
+              <Label>Dirección Casa Matriz *</Label>
+              <Input
+                type="text"
+                value={dirMatriz}
+                onChange={(e: any) => setDirMatriz(e.target.value)}
+                placeholder="Ej: Av. de los Shyris N34-102 y Holanda, Quito"
+                className="w-full"
+              />
+              {errores.dirMatriz && (
+                <p className="text-xs text-red-500 font-semibold mt-1">{errores.dirMatriz}</p>
+              )}
+            </div>
+
+            <div>
+              <Label>Dirección del Establecimiento / Sucursal *</Label>
+              <Input
+                type="text"
+                value={dirEstablecimiento}
+                onChange={(e: any) => setDirEstablecimiento(e.target.value)}
+                placeholder="Ej: Av. de los Shyris N34-102 y Holanda"
+                className="w-full"
+              />
+              {errores.dirEstablecimiento && (
+                <p className="text-xs text-red-500 font-semibold mt-1">{errores.dirEstablecimiento}</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Código de Establecimiento (3 dígitos) *</Label>
+                <Input
+                  type="text"
+                  maxLength={3}
+                  value={estab}
+                  onChange={(e: any) => setEstab(e.target.value)}
+                  placeholder="Ej: 001"
+                  className="w-full font-mono text-center"
+                />
+                {errores.estab && (
+                  <p className="text-xs text-red-500 font-semibold mt-1">{errores.estab}</p>
+                )}
+              </div>
+
+              <div>
+                <Label>Código de Punto Emisión (3 dígitos) *</Label>
+                <Input
+                  type="text"
+                  maxLength={3}
+                  value={ptoEmi}
+                  onChange={(e: any) => setPtoEmi(e.target.value)}
+                  placeholder="Ej: 001"
+                  className="w-full font-mono text-center"
+                />
+                {errores.ptoEmi && (
+                  <p className="text-xs text-red-500 font-semibold mt-1">{errores.ptoEmi}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t dark:border-gray-800 pt-4 mt-2">
+              <h5 className="text-sm font-bold text-gray-800 dark:text-white mb-3">
+                Firma Electrónica (.p12)
+              </h5>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
                 <div>
-                  <Label>País</Label>
-                  <Input type="text" value="Ecuador" />
+                  <Label>Certificado de Firma Electrónica</Label>
+                  <div className="relative mt-1">
+                    <input
+                      type="file"
+                      accept=".p12,.pfx"
+                      id="p12-uploader"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <label
+                      htmlFor="p12-uploader"
+                      className="flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 px-4 text-xs font-semibold text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition"
+                    >
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                      </svg>
+                      {firmaNombre ? "Cambiar Archivo" : "Cargar Archivo .p12"}
+                    </label>
+                  </div>
+                  {firmaNombre && (
+                    <p className="text-[11px] font-mono font-medium text-emerald-600 dark:text-emerald-400 mt-1.5 truncate">
+                      ✓ Seleccionado: {firmaNombre}
+                    </p>
+                  )}
                 </div>
 
                 <div>
-                  <Label>Ciudad / Provincia</Label>
-                  <Input type="text" value="Quito, Pichincha, Ecuador" />
-                </div>
-
-                <div>
-                  <Label>Código Postal</Label>
-                  <Input type="text" value="170150" />
-                </div>
-
-                <div>
-                  <Label>RUC / Cédula</Label>
-                  <Input type="text" value="1791234567001" />
+                  <Label>Contraseña de Firma Electrónica</Label>
+                  <Input
+                    type="password"
+                    value={firmaPassword}
+                    onChange={(e: any) => setFirmaPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full"
+                  />
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-              <Button size="sm" variant="outline" onClick={closeModal}>
-                Cerrar
+
+            <div className="flex items-center justify-end gap-3 border-t dark:border-gray-800 pt-5 mt-4">
+              <Button size="sm" variant="outline" type="button" onClick={closeModal} className="rounded-xl">
+                Cancelar
               </Button>
-              <Button size="sm" onClick={handleSave}>
+              <Button size="sm" type="submit" className="rounded-xl bg-brand-500 text-white hover:bg-brand-600">
                 Guardar Cambios
               </Button>
             </div>

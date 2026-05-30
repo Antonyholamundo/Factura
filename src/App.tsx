@@ -1,64 +1,65 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
+
+// ── Contexto de Autenticación ─────────────────────────────────────────────────
+import { AuthProvider } from "./contexto/ContextoAuth";
+import RutaProtegida from "./componentes/autenticacion/RutaProtegida";
+
+// ── Páginas de autenticación ──────────────────────────────────────────────────
 import SignIn from "./paginas/PaginasAuth/InicioSesion";
 import SignUp from "./paginas/PaginasAuth/Registro";
+
+// ── Páginas de error ──────────────────────────────────────────────────────────
 import NotFound from "./paginas/OtraPagina/NoEncontrado";
-import UserProfiles from "./paginas/PerfilesUsuario";
-import DirectorioClientes from "./paginas/DirectorioClientes";
-import Videos from "./paginas/ElementosUI/Videos";
-import Images from "./paginas/ElementosUI/Imagenes";
-import Alerts from "./paginas/ElementosUI/Alertas";
-import Badges from "./paginas/ElementosUI/Insignias";
-import Avatars from "./paginas/ElementosUI/Avatares";
-import Buttons from "./paginas/ElementosUI/Botones";
-import LineChart from "./paginas/Graficas/GraficaLineas";
-import BarChart from "./paginas/Graficas/GraficaBarras";
+
+// ── Módulos del sistema POS SRI ───────────────────────────────────────────────
+import Home from "./paginas/Tablero/Inicio";
 import BasicTables from "./paginas/Tablas/TablasBasicas";
 import FormElements from "./paginas/Formularios/ElementosFormulario";
+import DirectorioClientes from "./paginas/DirectorioClientes";
+import UserProfiles from "./paginas/PerfilesUsuario";
+
+// ── Layout principal ──────────────────────────────────────────────────────────
 import AppLayout from "./diseno/DisposicionApp";
 import { ScrollToTop } from "./componentes/comunes/ScrollAlInicio";
-import Home from "./paginas/Tablero/Inicio";
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
+          {/* ── Layout con barra lateral (módulos POS SRI) — PROTEGIDOS ── */}
+          <Route
+            element={
+              <RutaProtegida>
+                <AppLayout />
+              </RutaProtegida>
+            }
+          >
+            {/* Tablero / Inicio */}
             <Route index path="/" element={<Home />} />
 
-            {/* Others Page */}
-            <Route path="/profile" element={<UserProfiles />} />
-            <Route path="/clientes" element={<DirectorioClientes />} />
+            {/* Facturación POS — Terminal de Venta */}
+            <Route path="/facturador" element={<BasicTables />} />
 
-            {/* Forms */}
+            {/* Catálogo de Productos e Inventario */}
             <Route path="/form-elements" element={<FormElements />} />
 
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
+            {/* Directorio de Clientes */}
+            <Route path="/clientes" element={<DirectorioClientes />} />
 
-            {/* Ui Elements */}
-            <Route path="/alerts" element={<Alerts />} />
-            <Route path="/avatars" element={<Avatars />} />
-            <Route path="/badge" element={<Badges />} />
-            <Route path="/buttons" element={<Buttons />} />
-            <Route path="/images" element={<Images />} />
-            <Route path="/videos" element={<Videos />} />
-
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
+            {/* Configuración — Datos del Emisor / Firma Electrónica */}
+            <Route path="/profile" element={<UserProfiles />} />
           </Route>
 
-          {/* Auth Layout */}
+          {/* ── Autenticación (sin layout de barra lateral, PÚBLICAS) ── */}
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
 
-          {/* Fallback Route */}
+          {/* ── Ruta de fallback ── */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </>
+    </AuthProvider>
   );
 }

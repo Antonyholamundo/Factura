@@ -52,7 +52,7 @@ const operaciones: NavItem[] = [
     icon: <TableIcon />,
     name: "Facturación POS",
     subItems: [
-      { name: "Terminal de Venta (Caja)", path: "/basic-tables", pro: false },
+      { name: "Terminal de Venta (Caja)", path: "/facturador", pro: false },
     ],
   },
 ];
